@@ -1,0 +1,26 @@
+version: "3.9"
+
+services:
+  backend:
+    build: ./server
+    container_name: horarios-backend
+    ports:
+      - "5000:5000"
+    networks:
+      - appnet
+    volumes:
+      - ./server:/app
+
+  frontend:
+    build: ./client
+    container_name: horarios-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - appnet
+
+networks:
+  appnet:
+    driver: bridge
