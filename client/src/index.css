@@ -1,0 +1,13 @@
+@import url('https://fonts.googleapis.com/css2?family=Shadows+Into+Light&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-roboto: "Shadows Into Light", cursive;
+}
+
+body {
+  background-image: url('/fondo.svg');
+  background-repeat:repeat;
+  background-size: cover;
+  background-position: center;
+}
