@@ -13,7 +13,7 @@ CORS(app)
 with open("CSV/materias.json", "r", encoding="utf-8") as f:
     materias_dict = json.load(f)
 
-@app.route('/materias_disponibles', methods=['GET'])
+@app.route('/api/materias_disponibles', methods=['GET'])
 def materias_disponibles():
     try:
         # Carga tu CSV (ajusta la ruta según tu estructura)
@@ -34,7 +34,7 @@ def materias_disponibles():
         return jsonify({'error': 'No se pudieron cargar las materias'}), 500
     
 # Solo genera la matriz de adyacencia
-@app.route('/generate_matrix', methods=['POST'])
+@app.route('/api/generate_matrix', methods=['POST'])
 def generate_matrix():
     try:
         data = request.json
@@ -63,7 +63,7 @@ def generate_matrix():
 
 
 # Solo ejecuta el algoritmo ACO
-@app.route('/run_aco_solver', methods=['GET'])
+@app.route('/api/run_aco_solver', methods=['GET'])
 def run_aco():
     try:
         carga_academica = request.args.get('carga_academica', None)
@@ -147,7 +147,7 @@ def obtener_dias_horario(id_horario):
 
 
 # Solo genera el PDf con la informacion de los horarios
-@app.route('/generate_pdf', methods=['POST'])
+@app.route('/api/generate_pdf', methods=['POST'])
 def generate_pdf():
     data = request.get_json()
     soluciones = data.get('soluciones', [])
