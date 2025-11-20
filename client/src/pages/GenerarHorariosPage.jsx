@@ -141,7 +141,7 @@ const GenerarHorariosPage = () => {
   ============================================================ */
   const fetchData = async () => {
     try {
-      const matrixResponse = await axios.post('http://localhost:5000/generate_matrix', {
+      const matrixResponse = await axios.post('/generate_matrix', {
         horario_nido: horarioNido,
         horario_minimo: horarioMinimo,
         semestre: semestre || null,
@@ -150,7 +150,7 @@ const GenerarHorariosPage = () => {
       });
 
       if (matrixResponse.data?.message) {
-        const acoResponse = await axios.get('http://localhost:5000/run_aco_solver', {
+        const acoResponse = await axios.get('/run_aco_solver', {
           params: { carga_academica: cargaAcademica }
         });
 
@@ -279,7 +279,7 @@ const GenerarHorariosPage = () => {
       });
 
       const response = await axios.post(
-        'http://localhost:5000/generate_pdf',
+        '/generate_pdf',
         { soluciones: solucionesConMatriz },
         { responseType: 'blob' }
       );
@@ -308,7 +308,7 @@ const GenerarHorariosPage = () => {
       const matriz = generarMatrizConNombres(seleccionado.ruta);
 
       const response = await axios.post(
-        'http://localhost:5000/generate_pdf',
+        '/generate_pdf',
         {
           soluciones: [{
             peso: seleccionado.peso,
