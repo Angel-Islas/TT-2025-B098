@@ -148,7 +148,7 @@ const ModificarHorario = ({
       ];
 
       const response = await axios.post(
-        "/generate_pdf",
+        "/api/generate_pdf",
         { soluciones: solucionesConMatriz },
         {
           responseType: "blob",
@@ -174,7 +174,7 @@ const ModificarHorario = ({
   useEffect(() => {
     const fetchMaterias = async () => {
       try {
-        const res = await axios.get("/materias_disponibles");
+        const res = await axios.get("/api/materias_disponibles");
         const data = res.data;
         if (Array.isArray(data)) setMateriasDisponibles(data);
         else if (data?.materias) setMateriasDisponibles(data.materias);
