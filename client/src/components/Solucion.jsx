@@ -109,7 +109,7 @@ const Solucion = ({
       className="
         mb-8 bg-white border-4 border-black rounded-2xl
         shadow-[6px_6px_0px_0px_black] p-6
-        font-['Comic_Sans_MS',cursive]
+        font-['Comic_Sans_MS']
       "
     >
       <h2

@@ -16,13 +16,13 @@ const Header = () => {
           {/* LOGO */}
           <div className="flex items-center justify-between">
               <HiOutlineBugAnt className="m-2 text-3xl " />
-            <h1 className="text-2xl font-['Comic_Sans_MS',cursive] font-black tracking-wider rotate-[-1deg]">
+            <h1 className="text-2xl font-['Comic_Sans_MS'] font-black tracking-wider rotate-[-1deg]">
               ACOPlanner
             </h1>
           </div>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex space-x-4 font-['Comic_Sans_MS',cursive] ">
+          <div className="hidden md:flex space-x-4 font-['Comic_Sans_MS'] ">
             <Link
               to="/"
               className={`px-4 py-2 border-2 border-black rounded-xl shadow-[3px_3px_0px_#000] 
@@ -108,7 +108,7 @@ const Header = () => {
 
         {/* Mobile Menu */}
         {open && (
-          <div className="mt-4 md:hidden flex flex-col space-y-3 font-['Comic Sans MS', cursive]">
+          <div className="mt-4 md:hidden flex flex-col space-y-3 font-['Comic Sans MS']">
 
             <Link
               to="/"

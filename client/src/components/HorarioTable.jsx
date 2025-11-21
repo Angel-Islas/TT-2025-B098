@@ -13,7 +13,7 @@ const HorarioTable = ({ matriz, bloques, dias, colorMap }) => (
     <table
       className="table-auto border-collapse text-sm
                  border-[3px] border-black rounded-xl shadow-[4px_4px_0px_black]
-                 bg-[#fffdf6] font-[cursive]"
+                 bg-[#fffdf6] font-['Comic_Sans_MS']"
       style={{ width: "100%", maxWidth: "1100px" }}
     >
       <thead>

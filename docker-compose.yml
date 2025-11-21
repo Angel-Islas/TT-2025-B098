@@ -5,7 +5,7 @@ services:
     build: ./server
     container_name: horarios-backend
     ports:
-      - "5000:5000"
+      - "5000"
     networks:
       - appnet
     volumes:

@@ -33,7 +33,7 @@ const Sidebar = ({
       w-1/4 bg-white p-5 rounded-2xl
       border-4 border-black shadow-[6px_6px_0px_0px_#000]
       space-y-6
-      font-['Comic_Sans_MS',cursive]
+      font-['Comic_Sans_MS']
     ">
       <h2 className="text-xl font-bold mb-2 -rotate-1">
         Configuración

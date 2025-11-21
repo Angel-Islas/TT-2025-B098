@@ -10,7 +10,7 @@ const Footer = () => {
         border-t-[4px] border-black 
         shadow-[3px_3px_0px_#000]
         py-4
-        font-['Comic_Sans_MS',cursive]
+        font-['Comic_Sans_MS']
       "
     >
       <div className="container mx-auto px-4 max-w-5xl">

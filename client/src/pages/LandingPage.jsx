@@ -6,7 +6,7 @@ import { LuHeart } from "react-icons/lu";
 
 const LandingPage = () => {
   return (
-    <div className="font-['Comic_Sans_MS',cursive]">
+    <div className="font-['Comic_Sans_MS']">
 
       {/* HERO GARABATO */}
       <section className="

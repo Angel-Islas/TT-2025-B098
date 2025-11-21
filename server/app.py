@@ -198,7 +198,7 @@ def generate_pdf():
         pdf.add_page()
         
         pdf.image("img/EscudoESCOM.png", 30, 7, 28) # Izquierda 
-        pdf.image("img/Logo_ipn.png", 242, 3, 28) # Derecha
+        pdf.image("img/Logo_IPN.png", 242, 3, 28) # Derecha
 
         pdf.set_font("Arial", "B", 18)
         pdf.set_xy(0, 10)
@@ -319,9 +319,8 @@ def generate_pdf():
     pdf_output.seek(0)
 
     return send_file(pdf_output, mimetype="application/pdf",
-                     as_attachment=True, download_name="horarios.pdf")
-
+                     as_attachment=False, download_name="horarios.pdf")
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(host='0.0.0.0', debug=True, port=5000)

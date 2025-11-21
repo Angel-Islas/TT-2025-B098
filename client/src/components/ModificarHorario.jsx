@@ -330,7 +330,7 @@ const ModificarHorario = ({
         {/* PANEL DE PERSONALIZACIÓN */}
         <div className="w-80 bg-white border-4 border-black rounded-2xl p-3 shadow-[6px_6px_0_#000]">
 
-          <h3 className="text-lg font-bold mb-2 font-[cursive]">
+          <h3 className="text-lg font-bold mb-2 font-['Comic_Sans_MS']">
             Personalizar Materias
           </h3>
 
