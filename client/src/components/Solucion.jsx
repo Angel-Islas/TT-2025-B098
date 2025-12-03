@@ -22,9 +22,25 @@ const Solucion = ({
     ? generarMatrizConNombres(resultado.ruta, obtenerNombreMateria)
     : generarMatriz(resultado.ruta);
 
-  const calculateScheduleScore = (matriz, fitness, horasLibres) => {
-    const totalBloques = matriz.length;
+  /* ============================================================
+     MÉTRICA DE CALIDAD — IMPLEMENTACIÓN COMPLETA
+     Basada en la fórmula formal incorporando:
+     - Conflictos
+     - Materias asignadas
+     - Distribución equitativa
+     - Fitness normalizado
+  ============================================================ */
+  const calculateScheduleScore = (matriz, resultado) => {
+    const w1 = 0.35; // Conflictos
+    const w2 = 0.25; // Materias asignadas
+    const w3 = 0.20; // Distribución equitativa
+    const w4 = 0.20; // Fitness
+
+    /* ---------------------------------------------------------
+       1. Cálculo de conflictos
+    -----------------------------------------------------------*/
     let conflictCount = 0;
+    const totalBloques = matriz.length;
 
     for (const bloque of matriz) {
       if (Array.isArray(bloque) && bloque.length > 1) {
@@ -32,28 +48,73 @@ const Solucion = ({
       }
     }
 
-    const conflictRatio = Math.min(conflictCount / Math.max(1, totalBloques), 1);
-    const freeRatio = Math.min(Math.max(horasLibres, 0) / 8, 1);
-    const fitnessNorm = Math.min(Math.max(fitness, 0), 1);
+    const C_conf = -conflictCount / Math.max(1, totalBloques);
 
-    const penalizacion =
-      0.6 * conflictRatio +
-      0.3 * freeRatio +
-      0.1 * (1 - fitnessNorm);
+    /* ---------------------------------------------------------
+       2. Materias asignadas 
+    -----------------------------------------------------------*/
+    const materiasTotales = resultado.ruta.length;
+    const materiasAsignadas = resultado.ruta.filter(
+      (r) => !r.id_materia.includes("Nido")
+    ).length;
 
-    const finalScore = 1 - penalizacion;
-    const randomOffset = (Math.random() * 0.05 - 0.02);
-    const adjustedScore = Math.min(Math.max(finalScore + randomOffset, 0), 1);
+    const C_asig = materiasAsignadas / Math.max(1, materiasTotales);
 
-    return parseFloat((1 + adjustedScore * 4).toFixed(1));
+    /* ---------------------------------------------------------
+       3. Distribución equitativa de carga horaria
+    -----------------------------------------------------------*/
+    const diasSemana = 5;
+    let horasPorDia = Array(diasSemana).fill(0);
+
+    matriz.forEach((bloque, idx) => {
+      if (Array.isArray(bloque) && bloque.length > 0) {
+        const dia = idx % diasSemana;
+        horasPorDia[dia] += 1; // cada bloque equivale a 1 periodo
+      }
+    });
+
+    const promedio = horasPorDia.reduce((a, b) => a + b, 0) / diasSemana;
+
+    let varianza = 0;
+    for (let h of horasPorDia) varianza += Math.pow(h - promedio, 2);
+    varianza /= diasSemana;
+
+    const sigma = Math.sqrt(varianza);
+    const sigmaMax = Math.sqrt(
+      diasSemana * Math.pow(Math.max(...horasPorDia), 2)
+    );
+
+    const C_dist = 1 - Math.min(sigma / Math.max(1, sigmaMax), 1);
+
+    /* ---------------------------------------------------------
+       4. Fitness normalizado
+    -----------------------------------------------------------*/
+    const F = resultado.peso;
+    const C_fit = Math.min(Math.max(F, 0), 1);
+
+    /* ---------------------------------------------------------
+       5. Fórmula final de calidad
+    -----------------------------------------------------------*/
+    const Q =
+      w1 * C_conf +
+      w2 * C_asig +
+      w3 * C_dist +
+      w4 * C_fit;
+
+    /* Normalizar a escala 1–5 */
+    const Q_norm = Math.min(Math.max(1 + 4 * Math.max(Q, 0), 1), 5);
+
+    return parseFloat(Q_norm.toFixed(1));
   };
 
-  const scheduleScore = calculateScheduleScore(
-    matriz,
-    resultado.peso,
-    resultado.horas_libres
-  );
+  /* ============================================================
+     Obtener la calidad final del horario
+  ============================================================ */
+  const scheduleScore = calculateScheduleScore(matriz, resultado);
 
+  /* ============================================================
+     Función auxiliar para mostrar días asignados según idHorario
+  ============================================================ */
   const obtenerDiasDeHorario = (idHorario) => {
     const cleanId = idHorario.replace(/['"\s]/g, "");
     const horarios = {

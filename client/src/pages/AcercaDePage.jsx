@@ -175,8 +175,8 @@ const AcercaDePage = () => {
               <li className="flex items-start">
                 <span className="w-2 h-2 mt-2 bg-pink-500 rounded-full"></span>
                   <p className="ml-3 text-gray-800">
-                    Mejora del algoritmo mediante un enfoque de optimización multiobjetivo, incormporando metricas para mejorar la calidad de las soluciones, 
-                    además integrar mejoras en la heurísitica propuesta para mejorar su rendimiento
+                    Mejora del algoritmo mediante un enfoque de optimización multiobjetivo, incorporando metricas para mejorar la calidad de las soluciones, 
+                    además integrar mejoras en la heurística propuesta para mejorar su rendimiento
                   </p>
               </li>
             </ul>
