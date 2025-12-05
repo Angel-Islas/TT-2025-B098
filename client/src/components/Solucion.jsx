@@ -30,82 +30,95 @@ const Solucion = ({
      - Distribución equitativa
      - Fitness normalizado
   ============================================================ */
-  const calculateScheduleScore = (matriz, resultado) => {
+  const calculateScheduleScore = (solucion, horarios) => {
     const w1 = 0.35; // Conflictos
     const w2 = 0.25; // Materias asignadas
     const w3 = 0.20; // Distribución equitativa
     const w4 = 0.20; // Fitness
 
     /* ---------------------------------------------------------
-       1. Cálculo de conflictos
-    -----------------------------------------------------------*/
-    let conflictCount = 0;
-    const totalBloques = matriz.length;
+        1. Construir matriz real de uso por día y franja horaria
+       --------------------------------------------------------- */
+    const dias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"];
+    let horarioOcupado = dias.map(() => []); 
+    // Ejemplo: horarioOcupado[0] = lista de materias del lunes
 
-    for (const bloque of matriz) {
-      if (Array.isArray(bloque) && bloque.length > 1) {
-        conflictCount += bloque.length - 1;
-      }
+    for (const asignacion of solucion.ruta) {
+        const idMat = asignacion.id_materia;
+        const idHor = asignacion.id_horario.replace(" '", "");
+
+        if (!horarios[idHor]) continue;
+
+        horarios[idHor].forEach((franja, diaIndex) => {
+            if (franja !== "-") {
+                horarioOcupado[diaIndex].push(idMat);
+            }
+        });
     }
 
-    const C_conf = -conflictCount / Math.max(1, totalBloques);
+    /* ---------------------------------------------------------
+        2. Conflictos (dos materias en la misma franja el mismo día)
+       --------------------------------------------------------- */
+    let conflictos = 0;
+    for (let dia = 0; dia < 5; dia++) {
+        let materias = horarioOcupado[dia];
+        let repetidos = materias.length - new Set(materias).size;
+        if (repetidos > 0) conflictos += repetidos;
+    }
+
+    const C_conf = -conflictos / 20; // normalización
+    /* ---------------------------------------------------------
+        3. Materias asignadas
+       --------------------------------------------------------- */
+    const materiasTotales = solucion.ruta.length - 1; 
+    const materiasAsignadas = solucion.ruta.filter(m => m.id_materia !== "Nido").length;
+
+    const C_asig = materiasAsignadas / materiasTotales;
 
     /* ---------------------------------------------------------
-       2. Materias asignadas 
-    -----------------------------------------------------------*/
-    const materiasTotales = resultado.ruta.length;
-    const materiasAsignadas = resultado.ruta.filter(
-      (r) => !r.id_materia.includes("Nido")
-    ).length;
+        4. Distribución equitativa
+       --------------------------------------------------------- */
+    let horasPorDia = horarioOcupado.map(lista => lista.length);
 
-    const C_asig = materiasAsignadas / Math.max(1, materiasTotales);
+    const promedio = horasPorDia.reduce((a, b) => a + b, 0) / 5;
 
-    /* ---------------------------------------------------------
-       3. Distribución equitativa de carga horaria
-    -----------------------------------------------------------*/
-    const diasSemana = 5;
-    let horasPorDia = Array(diasSemana).fill(0);
-
-    matriz.forEach((bloque, idx) => {
-      if (Array.isArray(bloque) && bloque.length > 0) {
-        const dia = idx % diasSemana;
-        horasPorDia[dia] += 1; // cada bloque equivale a 1 periodo
-      }
-    });
-
-    const promedio = horasPorDia.reduce((a, b) => a + b, 0) / diasSemana;
-
-    let varianza = 0;
-    for (let h of horasPorDia) varianza += Math.pow(h - promedio, 2);
-    varianza /= diasSemana;
-
+    let varianza = horasPorDia.reduce((acc, h) => acc + Math.pow(h - promedio, 2), 0) / 5;
     const sigma = Math.sqrt(varianza);
-    const sigmaMax = Math.sqrt(
-      diasSemana * Math.pow(Math.max(...horasPorDia), 2)
-    );
 
-    const C_dist = 1 - Math.min(sigma / Math.max(1, sigmaMax), 1);
+    const sigmaMax = Math.sqrt(5 * Math.pow(Math.max(...horasPorDia), 2));
 
-    /* ---------------------------------------------------------
-       4. Fitness normalizado
-    -----------------------------------------------------------*/
-    const F = resultado.peso;
-    const C_fit = Math.min(Math.max(F, 0), 1);
+    const C_dist = 1 - Math.min(sigma / (sigmaMax || 1), 1);
 
     /* ---------------------------------------------------------
-       5. Fórmula final de calidad
-    -----------------------------------------------------------*/
+        5. Fitness normalizado
+       --------------------------------------------------------- */
+    const F = Number(solucion.peso) || 0;
+    const C_fit = Math.min(Math.max(F / 100, 0), 1);
+
+    /* ---------------------------------------------------------
+        6. Fórmula final
+       --------------------------------------------------------- */
     const Q =
-      w1 * C_conf +
-      w2 * C_asig +
-      w3 * C_dist +
-      w4 * C_fit;
+        w1 * C_conf +
+        w2 * C_asig +
+        w3 * C_dist +
+        w4 * C_fit;
 
-    /* Normalizar a escala 1–5 */
     const Q_norm = Math.min(Math.max(1 + 4 * Math.max(Q, 0), 1), 5);
 
-    return parseFloat(Q_norm.toFixed(1));
-  };
+    return {
+        score: parseFloat(Q_norm.toFixed(2)),
+        detalles: {
+            conflictos,
+            materiasAsignadas,
+            horasPorDia,
+            C_conf,
+            C_asig,
+            C_dist,
+            C_fit
+        }
+    };
+};
 
   /* ============================================================
      Obtener la calidad final del horario

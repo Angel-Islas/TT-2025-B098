@@ -61,7 +61,6 @@ def generate_matrix():
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
-
 # Solo ejecuta el algoritmo ACO
 @app.route('/api/run_aco_solver', methods=['GET'])
 def run_aco():
@@ -199,6 +198,8 @@ def generate_pdf():
         
         pdf.image("img/EscudoESCOM.png", 30, 7, 28) # Izquierda 
         pdf.image("img/Logo_IPN.png", 242, 3, 28) # Derecha
+        
+        pdf.image("img/fondo.jpg", x=0, y=0, w=297, h=210)  # Fondo completo
 
         pdf.set_font("Arial", "B", 18)
         pdf.set_xy(0, 10)
