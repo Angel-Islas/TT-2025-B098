@@ -188,8 +188,8 @@ def run_aco_solver(csv_path='CSV/completa.csv', max_iter=10, num_ants=5, carga_a
         # ------------------------------
         if carga_academica:
             limite_materias = {
-                'minima': 4,
-                'media': 6,
+                'minima': random.randint(3, 5),
+                'media': random.randint(5, 7),
                 'maxima': None  # No se recorta
             }.get(carga_academica, None)
 

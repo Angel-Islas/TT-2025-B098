@@ -195,11 +195,11 @@ def generate_pdf():
 
     for idx, solucion in enumerate(soluciones):
         pdf.add_page()
+        pdf.image("img/fondo.jpg", x=0, y=0, w=297, h=210)  # Fondo completo
         
         pdf.image("img/EscudoESCOM.png", 30, 7, 28) # Izquierda 
-        pdf.image("img/Logo_IPN.png", 242, 3, 28) # Derecha
+        pdf.image("img/Logo_ipn.png", 242, 3, 28) # Derecha
         
-        pdf.image("img/fondo.jpg", x=0, y=0, w=297, h=210)  # Fondo completo
 
         pdf.set_font("Arial", "B", 18)
         pdf.set_xy(0, 10)
@@ -213,57 +213,112 @@ def generate_pdf():
         # ======================
         # TABLA DE HORARIO (centrada)
         # ======================
-        col_w = 38
-        row_h = 10
+        col_w = 34
+        line_h = 2.3   # altura por línea
         total_width = col_w * (1 + len(dias))
+
+        # Primero obtener la matriz de esta solución
+        matriz = solucion.get("matriz", [])
+        
+        # Verificar que la matriz existe
+        if not matriz:
+            continue
+            
+        # Calcular altura máxima global para todas las filas
+        global_max_lines = 1
+        for fila in matriz:
+            for celda in fila:
+                contenido = celda or ""
+                if contenido:
+                    # Calcular líneas necesarias
+                    lines = len(pdf.multi_cell(col_w, line_h, contenido, split_only=True, border=0))
+                    global_max_lines = max(global_max_lines, lines)
+        
+        # Altura uniforme para todas las filas (mínimo 2 líneas)
+        row_h = max(global_max_lines, 2) * line_h
 
         center_table(pdf, total_width)
 
         # Encabezado
         pdf.set_font("Arial", "B", 9)
         pdf.set_fill_color(235, 245, 255)
-        pdf.cell(col_w, row_h, "Hora", border=1, align="C", fill=True)
+        pdf.cell(col_w, 10, "Hora", border=1, align="C", fill=True)
 
         for dia in dias:
-            pdf.cell(col_w, row_h, dia, border=1, align="C", fill=True)
+            pdf.cell(col_w, 10, dia, border=1, align="C", fill=True)
         pdf.ln()
 
-        pdf.set_font("Arial", size=7)
-        matriz = solucion["matriz"]
+        pdf.set_font("Arial", "", 7)
 
+        # Dibujar tabla con altura uniforme
         for i, fila in enumerate(matriz):
-
-            # Centrar cada fila
+            # Centrar esta fila
             center_table(pdf, total_width)
-
+            
+            # Guardar posición inicial
+            start_x = pdf.get_x()
+            start_y = pdf.get_y()
+            
+            # === 1. DIBUJAR EL FONDO DE LAS CELDAS (con bordes) ===
+            
+            # Celda de hora (fondo blanco)
             pdf.set_fill_color(255, 255, 255)
-            pdf.cell(col_w, row_h, bloques[i], border=1, align="C")
-
+            pdf.cell(col_w, row_h, "", border=1, align="C", fill=True)
+            
+            # Celdas de contenido (días)
             for celda in fila:
                 contenido = celda or ""
-
-                # Determinar color
+                
+                # Determinar color de fondo
                 fill = False
+                fill_color = (255, 255, 255)
                 if contenido:
                     primera = contenido.split("/")[0].strip()
                     if primera in color_map:
                         r, g, b = hex_to_rgb(color_map[primera])
-                        pdf.set_fill_color(r, g, b)
+                        fill_color = (r, g, b)
                         fill = True
-
-                if not fill:
-                    pdf.set_fill_color(255, 255, 255)
-
-                pdf.cell(col_w, row_h, contenido, border=1, align="C", fill=True)
-
-            pdf.ln()
+                
+                pdf.set_fill_color(*fill_color)
+                pdf.cell(col_w, row_h, "", border=1, align="C", fill=True)
+            
+            # === 2. DIBUJAR EL TEXTO ENCIMA (centrado) ===
+            
+            # Volver a la posición inicial de la fila
+            pdf.set_xy(start_x, start_y)
+            
+            # Celda de hora (texto)
+            pdf.set_fill_color(255, 255, 255)  # Fondo transparente para texto
+            pdf.cell(col_w, row_h, bloques[i], border=0, align="C", fill=False)
+            
+            # Celdas de contenido (texto)
+            for j, celda in enumerate(fila):
+                contenido = celda or ""
+                if contenido:
+                    # Calcular posición X
+                    x_pos = start_x + col_w * (j + 1)
+                    
+                    # Calcular altura del texto
+                    lines_needed = len(pdf.multi_cell(col_w, line_h, contenido, split_only=True, border=0))
+                    text_height = lines_needed * line_h
+                    
+                    # Calcular desplazamiento vertical para centrar
+                    y_offset = max(1, (row_h - text_height) / 2)
+                    
+                    # Posicionar para texto
+                    pdf.set_xy(x_pos, start_y + y_offset)
+                    
+                    # Dibujar texto (sin borde, sin fondo)
+                    pdf.multi_cell(col_w, line_h, contenido, border=0, align="C", fill=False)
+            
+            # Mover a siguiente fila
+            pdf.set_xy(start_x, start_y + row_h)
 
         pdf.ln(6)
 
         # ======================
-        # TABLA DE PASOS (centrada + muestra nombre de materia)
+        # TABLA DE PASOS
         # ======================
-        # === TABLA DE PASOS ===
         pasos = solucion.get("ruta", [])
         pasos = [p for p in pasos if "Nido" not in p.get("id_materia", "")]
         pasos = pasos[:10]
@@ -294,7 +349,7 @@ def generate_pdf():
 
             # Paso
             pdf.set_fill_color(255, 255, 255)
-            pdf.cell(col_paso, 6, str(i + 1), border=1, align="C")
+            pdf.cell(col_paso, 6, str(i + 1), border=1, align="C", fill=True)
 
             # Color por nombre
             if nombre_materia in color_map:
@@ -310,17 +365,15 @@ def generate_pdf():
             # Horario bonito
             pdf.set_fill_color(255, 255, 255)
             dias_h = obtener_dias_horario(item["id_horario"])
-            pdf.cell(col_horario, 6, dias_h, border=1, align="C")
+            pdf.cell(col_horario, 6, dias_h, border=1, align="C", fill=True)
 
             pdf.ln()
-
 
     pdf_bytes = pdf.output(dest="S").encode("latin1")
     pdf_output = BytesIO(pdf_bytes)
     pdf_output.seek(0)
 
-    return send_file(pdf_output, mimetype="application/pdf",
-                     as_attachment=False, download_name="horarios.pdf")
+    return send_file(pdf_output, mimetype="application/pdf", as_attachment=True, download_name="horarios.pdf")
 
 
 if __name__ == '__main__':

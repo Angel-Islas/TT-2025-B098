@@ -13,8 +13,11 @@ const Sidebar = ({
   semestre,
   setSemestre,
   cargaAcademica,
-  setCargaAcademica
+  setCargaAcademica,
+  modoTurnoActivo,         // NUEVO
+  setModoTurnoActivo       // NUEVO
 }) => {
+
   const horariosDisponibles = [
     { id: 'H1', hora: '7:00' },
     { id: 'H5', hora: '8:30' },
@@ -26,36 +29,59 @@ const Sidebar = ({
     { id: 'H28', hora: '18:30' }
   ];
 
-  const horaBloqueada = !!turno;
-
   return (
     <div className="
       w-1/4 bg-white p-5 rounded-2xl
       border-4 border-black shadow-[6px_6px_0px_0px_#000]
       space-y-6
-      font-['Comic_Sans_MS']
+      font-['Comic_Sans_MS',cursive]
     ">
       <h2 className="text-xl font-bold mb-2 -rotate-1">
         Configuración
       </h2>
 
+      {/* ---------- NUEVO BOTÓN ---------- */}
+      <button
+        onClick={() => setModoTurnoActivo(!modoTurnoActivo)}
+        className="
+          w-full bg-purple-200 border-2 border-black rounded-xl
+          py-2 font-bold shadow-[4px_4px_0px_0px_black]
+          hover:bg-purple-300 transition
+        "
+      >
+        {modoTurnoActivo ? "Modo: Turno activo" : "Modo: Hora inicial activa"}
+      </button>
+
       <form className="space-y-4">
 
         {/* Turno */}
         <label className="block">
-          <span className="font-semibold">Turno:</span>
+          <span className={`font-semibold ${!modoTurnoActivo ? 'text-red-600' : ''}`}>
+            Turno:
+          </span>
+
           <select
             value={turno}
             onChange={e => setTurno(e.target.value)}
-            className="
-              w-full p-2 mt-1 rounded-xl border-2 border-black
-              bg-white shadow-[3px_3px_0px_0px_black]
-            "
+            disabled={!modoTurnoActivo}
+            className={`
+              w-full p-2 mt-1 rounded-xl border-2
+              shadow-[3px_3px_0px_0px_black]
+              ${modoTurnoActivo
+                ? 'bg-white border-black'
+                : 'bg-red-200 border-red-600 cursor-not-allowed'}
+            `}
           >
             <option value="">Selecciona turno</option>
             <option value="matutino">Matutino</option>
             <option value="vespertino">Vespertino</option>
           </select>
+
+          {!modoTurnoActivo && (
+            <p className="text-xs text-red-600 mt-1">
+              * Turno deshabilitado, modo hora inicial activo
+            </p>
+          )}
         </label>
 
         {/* Semestre */}
@@ -76,26 +102,22 @@ const Sidebar = ({
           </select>
         </label>
 
-        {/* Hora inicial del día */}
+        {/* Hora inicial */}
         <label className="block">
-          <span
-            className={`font-semibold ${
-              horaBloqueada ? 'text-red-600' : ''
-            }`}
-          >
+          <span className={`font-semibold ${modoTurnoActivo ? 'text-red-600' : ''}`}>
             Hora inicial del día:
           </span>
 
           <select
             value={horarioNido}
             onChange={e => handleHorarioNidoChange(e.target.value)}
-            disabled={horaBloqueada}
+            disabled={modoTurnoActivo}
             className={`
               w-full p-2 mt-1 rounded-xl border-2
               shadow-[3px_3px_0px_0px_black]
-              ${horaBloqueada
-                ? 'bg-red-200 border-red-600 cursor-not-allowed'
-                : 'bg-white border-black'}
+              ${!modoTurnoActivo
+                ? 'bg-white border-black'
+                : 'bg-red-200 border-red-600 cursor-not-allowed'}
             `}
           >
             <option value="">Selecciona hora</option>
@@ -104,9 +126,9 @@ const Sidebar = ({
             ))}
           </select>
 
-          {horaBloqueada && (
+          {modoTurnoActivo && (
             <p className="text-xs text-red-600 mt-1">
-              * No se puede seleccionar hora cuando hay turno
+              * Hora inicial deshabilitada, modo turno activo
             </p>
           )}
         </label>
@@ -130,7 +152,7 @@ const Sidebar = ({
         </label>
       </form>
 
-      {/* Botones */}
+      {/* Botón generar */}
       <button
         onClick={fetchData}
         className="
@@ -142,6 +164,7 @@ const Sidebar = ({
         Generar Horarios
       </button>
 
+      {/* Botón PDF */}
       <button
         onClick={handleDownloadPDF}
         className="
@@ -153,6 +176,7 @@ const Sidebar = ({
         Descargar PDF (todos)
       </button>
 
+      {/* Acordeón */}
       <label className="flex items-center gap-2 text-sm font-semibold">
         <input
           type="checkbox"

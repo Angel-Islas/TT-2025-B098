@@ -14,6 +14,7 @@ const GenerarHorariosPage = () => {
   const [horarioMinimo, setHorarioMinimo] = useState(1);
   const [modoAcordeon, setModoAcordeon] = useState(false);
   const [acordeonActivo, setAcordeonActivo] = useState(null);
+  const [modoTurnoActivo, setModoTurnoActivo] = useState(true);
   const [turno, setTurno] = useState("");
 
   /* ============================================================
@@ -351,6 +352,8 @@ const GenerarHorariosPage = () => {
         setSelectedHorarioIdx={setSelectedHorarioIdx}
         semestre={semestre}
         setSemestre={setSemestre}
+        modoTurnoActivo={modoTurnoActivo}
+        setModoTurnoActivo={setModoTurnoActivo}
       />
 
       <div className="flex-1 overflow-y-auto h-screen pr-2">

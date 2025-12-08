@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { HiOutlineBugAnt } from "react-icons/hi2";
 
 const Header = () => {
   const location = useLocation();
@@ -15,7 +14,12 @@ const Header = () => {
 
           {/* LOGO */}
           <div className="flex items-center justify-between">
-              <HiOutlineBugAnt className="m-2 text-3xl " />
+              <img 
+                src="/ant.jpg"
+                alt="Logo"
+                className="m-2 w-10 h-10 object-contain"
+              />
+
             <h1 className="text-2xl font-['Comic_Sans_MS'] font-black tracking-wider rotate-[-1deg]">
               ACOPlanner
             </h1>
